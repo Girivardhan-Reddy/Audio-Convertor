@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AudioForge Pro - Multi-File Audio Converter</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        :root {
+            --accent: #6366f1;
+            --accent-glow: rgba(99, 102, 241, 0.5);
+            --bg-primary: #0a0a14;
+            --bg-secondary: #12122a;
+            --glass-bg: rgba(18, 18, 42, 0.7);
+            --text-primary: #e8e8ed;
+            --text-secondary: #a0a0b8;
+            --border: rgba(255, 255, 255, 0.08);
+        }
+        
+        * { font-family: 'Inter', sans-serif; box-sizing: border-box; }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a14 0%, #12122a 50%, #0f0f24 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        .bg-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .bg-orb-1 {
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.4), transparent);
+            top: -200px; left: -200px;
+            animation: float1 20s ease-in-out infinite;
+        }
+        
+        .bg-orb-2 {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.4), transparent);
+            bottom: -200px; right: -200px;
+            animation: float2 25s ease-in-out infinite;
+        }
+        
+        @keyframes float1 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(100px, 50px) scale(1.1); }
+            66% { transform: translate(-50px, 100px) scale(0.9); }
+        }
+        
+        @keyframes float2 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(-80px, -80px) scale(1.15); }
+            66% { transform: translate(60px, -40px) scale(0.85); }
+        }
+        
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .glass-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .glass-hover:hover {
+            background: rgba(30, 30, 60, 0.85);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(99, 102, 241, 0.15);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-success:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+        }
+        
+        .upload-zone {
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .upload-zone:hover, .upload-zone.drag-over {
+            border-color: var(--accent);
+            background: rgba(99, 102, 241, 0.08);
+            box-shadow: 0 0 60px rgba(99, 102, 241, 0.15);
+        }
+        
+        select {
+            background: rgba(15, 15, 35, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+        
+        select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+        }
+        
+        input[type="checkbox"] {
+            accent-color: var(--accent);
+        }
+        
+        .progress-bar-bg {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            overflow: hidden;
+            height: 8px;
+        }
+        
+        .progress-bar-fill {
+            background: linear-gradient(90deg, #6366f1, #8b5cf6, #a78bfa);
+            background-size: 200% 100%;
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            animation: shimmer 2s linear infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        .file-card {
+            transition: all 0.2s ease;
+        }
+        
+        .file-card:hover {
+            background: rgba(30, 30, 60, 0.6);
+        }
+        
+        .file-card .remove-btn {
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .file-card:hover .remove-btn {
+            opacity: 1;
+        }
+        
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .sidebar-link:hover, .sidebar-link.active {
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--text-primary);
+            border-left-color: var(--accent);
+        }
+        
+        .meta-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .meta-item:last-child { border-bottom: none; }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.3); border-radius: 3px; }
+        
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(99, 102, 241, 0.6); }
+        }
+        
+        .pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+        
+        .save-path-input {
+            background: rgba(15, 15, 35, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            width: 100%;
+        }
+        
+        .save-path-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar { width: 60px; }
+            .sidebar-link span { display: none; }
+            .upload-zone { padding: 20px; min-height: 200px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+    
+    <div class="flex h-screen relative z-10">
+        <!-- Sidebar -->
+        <aside class="sidebar w-64 bg-black/40 backdrop-blur-xl border-r border-white/5 flex flex-col p-4">
+            <div class="flex items-center gap-3 px-4 py-6 mb-6">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                    <i class="fas fa-wave-square text-white text-lg"></i>
+                </div>
+                <div>
+                    <div class="font-bold text-lg gradient-text">AudioForge</div>
+                    <div class="text-xs text-white/40">Pro Suite</div>
+                </div>
+            </div>
+            
+            <nav class="flex-1 space-y-1">
+                <div class="sidebar-link active" data-tab="converter" onclick="switchTab('converter')">
+                    <i class="fas fa-exchange-alt w-5"></i>
+                    <span>Converter</span>
+                </div>
+                <div class="sidebar-link" data-tab="presets" onclick="switchTab('presets')">
+                    <i class="fas fa-layer-group w-5"></i>
+                    <span>Presets</span>
+                </div>
+                <div class="sidebar-link" data-tab="history" onclick="switchTab('history')">
+                    <i class="fas fa-clock-rotate-left w-5"></i>
+                    <span>History</span>
+                </div>
+                <div class="sidebar-link" data-tab="about" onclick="switchTab('about')">
+                    <i class="fas fa-circle-info w-5"></i>
+                    <span>About</span>
+                </div>
+            </nav>
+            
+            <div class="mt-auto px-2">
+                <div class="text-xs text-white/30 text-center" id="ffmpegStatus">Checking FFmpeg...</div>
+            </div>
+        </aside>
+        
+        <!-- Main content -->
+        <main class="flex-1 overflow-y-auto">
+            <header class="glass sticky top-0 z-20 px-6 py-3 flex items-center justify-between">
+                <div>
+                    <span class="text-sm text-white/50">Professional Multi-File Audio Conversion</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-xs text-white/40" id="fileCount">No files uploaded</span>
+                </div>
+            </header>
+            
+            <!-- Tab: Converter -->
+            <div id="tab-converter" class="tab-content p-6">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Left column - Upload & File List -->
+                    <div class="lg:col-span-2 space-y-6">
+                        <!-- Upload Zone -->
+                        <div class="glass rounded-2xl p-6">
+                            <div class="upload-zone" id="uploadZone">
+                                <input type="file" id="fileInput" class="hidden" multiple accept=".mp3,.wav,.aac,.flac,.ogg,.m4a,.aiff,.wma,.ac3,.opus,.mp4,.mov,.avi,.mkv,.webm">
+                                <i class="fas fa-cloud-arrow-up text-5xl text-indigo-400 mb-4"></i>
+                                <h3 class="text-xl font-bold mb-2">Drop Audio Files Here</h3>
+                                <p class="text-white/50 mb-2">or click to browse - Multiple files supported</p>
+                                <div class="flex flex-wrap justify-center gap-2">
+                                    <span class="px-3 py-1 text-xs bg-indigo-500/20 rounded-full">MP3</span>
+                                    <span class="px-3 py-1 text-xs bg-purple-500/20 rounded-full">WAV</span>
+                                    <span class="px-3 py-1 text-xs bg-pink-500/20 rounded-full">FLAC</span>
+                                    <span class="px-3 py-1 text-xs bg-blue-500/20 rounded-full">AAC</span>
+                                    <span class="px-3 py-1 text-xs bg-green-500/20 rounded-full">OGG</span>
+                                    <span class="px-3 py-1 text-xs bg-yellow-500/20 rounded-full">AIFF</span>
+                                    <span class="px-3 py-1 text-xs bg-orange-500/20 rounded-full">OPUS</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- File List -->
+                        <div id="fileListSection" class="glass rounded-2xl p-6 hidden">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-bold">
+                                    <i class="fas fa-list-ul text-indigo-400 mr-2"></i>
+                                    Uploaded Files (<span id="fileCountDisplay">0</span>)
+                                </h3>
+                                <div class="flex gap-2">
+                                    <button onclick="clearAllFiles()" class="btn-secondary text-sm py-1 px-3">
+                                        <i class="fas fa-trash"></i> Clear All
+                                    </button>
+                                    <button onclick="addMoreFiles()" class="btn-secondary text-sm py-1 px-3">
+                                        <i class="fas fa-plus"></i> Add More
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Save Location -->
+                            <div class="glass rounded-xl p-4 mb-4">
+                                <label class="text-sm font-semibold text-white/70 block mb-2">
+                                    <i class="fas fa-folder-open text-indigo-400 mr-1"></i>
+                                    Save Output Location
+                                </label>
+                                <div class="flex gap-2">
+                                    <input type="text" id="savePath" class="save-path-input flex-1" 
+                                           placeholder="Default: Downloads folder" 
+                                           value="">
+                                    <button onclick="selectSaveFolder()" class="btn-secondary text-sm py-1 px-3" title="Select folder (browser default download)">
+                                        <i class="fas fa-folder"></i>
+                                    </button>
+                                </div>
+                                <p class="text-xs text-white/40 mt-1">
+                                    Files will be saved with their original names and new format extension.
+                                </p>
+                            </div>
+                            
+                            <!-- File cards -->
+                            <div id="fileCards" class="space-y-2 max-h-80 overflow-y-auto"></div>
+                        </div>
+                        
+                        <!-- Progress Section -->
+                        <div id="progressSection" class="glass rounded-2xl p-6 hidden">
+                            <h3 class="text-lg font-bold mb-4">
+                                <i class="fas fa-gears text-indigo-400 mr-2"></i>Conversion Progress
+                            </h3>
+                            <div class="progress-bar-bg mb-2">
+                                <div class="progress-bar-fill" id="progressBar" style="width: 0%"></div>
+                            </div>
+                            <div class="flex justify-between text-sm text-white/60 mb-2">
+                                <span id="progressText">0%</span>
+                                <span id="progressFileInfo"></span>
+                            </div>
+                            <p class="text-xs text-white/50" id="progressStatus">Preparing...</p>
+                        </div>
+                        
+                        <!-- Complete Section -->
+                        <div id="completeSection" class="glass rounded-2xl p-6 hidden">
+                            <div class="text-center mb-6">
+                                <div class="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4 pulse-glow">
+                                    <i class="fas fa-check-circle text-3xl text-green-400"></i>
+                                </div>
+                                <h3 class="text-xl font-bold text-green-400">Conversion Complete!</h3>
+                                <p class="text-white/60 mt-2" id="completeMessage"></p>
+                            </div>
+                            
+                            <div id="failedFilesSection" class="glass rounded-xl p-4 mb-4 hidden">
+                                <h4 class="text-sm font-semibold text-red-400 mb-2">
+                                    <i class="fas fa-exclamation-triangle mr-1"></i> Failed Files
+                                </h4>
+                                <div id="failedFilesList" class="text-xs text-white/60 space-y-1"></div>
+                            </div>
+                            
+                            <button id="downloadButton" class="btn-success w-full justify-center text-lg" onclick="downloadFiles()">
+                                <i class="fas fa-download"></i> Download Converted Files
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Right column - Options -->
+                    <div class="space-y-6">
+                        <div class="glass rounded-2xl p-5">
+                            <h3 class="text-sm font-semibold text-white/50 uppercase tracking-wider mb-3">
+                                <i class="fas fa-bolt text-indigo-400 mr-1"></i> Preset
+                            </h3>
+                            <select id="presetSelect" onchange="applyPreset(this.value)">
+                                <option value="custom">Custom Settings</option>
+                                <option value="netflix">🎬 Netflix Delivery</option>
+                                <option value="spotify">🎵 Spotify</option>
+                                <option value="apple_music">🍎 Apple Music</option>
+                                <option value="youtube">▶️ YouTube</option>
+                                <option value="podcast">🎙️ Podcast</option>
+                                <option value="cinema">🎞️ Cinema 5.1</option>
+                                <option value="broadcast">📡 Broadcast</option>
+                                <option value="master">💾 Master Archive</option>
+                            </select>
+                        </div>
+                        
+                        <div class="glass rounded-2xl p-5">
+                            <h3 class="text-sm font-semibold text-white/50 uppercase tracking-wider mb-3">
+                                <i class="fas fa-sliders text-indigo-400 mr-1"></i> Output Settings
+                            </h3>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="text-xs text-white/50 block mb-1">Format</label>
+                                    <select id="outFormatSelect" onchange="onFormatChange()">
+                                        <option value="wav">WAV</option>
+                                        <option value="mp3">MP3</option>
+                                        <option value="aac">AAC</option>
+                                        <option value="flac">FLAC</option>
+                                        <option value="aiff">AIFF</option>
+                                        <option value="ogg">OGG Vorbis</option>
+                                        <option value="opus">OPUS</option>
+                                    </select>
+                                </div>
+                                
+                                <div id="bitDepthGroup">
+                                    <label class="text-xs text-white/50 block mb-1">Bit Depth / PCM Codec</label>
+                                    <select id="bitDepthSelect">
+                                        <option value="16">16-bit (pcm_s16le)</option>
+                                        <option value="24">24-bit (pcm_s24le)</option>
+                                        <option value="32f">32-bit Float (pcm_f32le)</option>
+                                        <option value="64f">64-bit Float (pcm_f64le)</option>
+                                    </select>
+                                </div>
+                                
+                                <div id="bitrateGroup">
+                                    <label class="text-xs text-white/50 block mb-1">Bitrate</label>
+                                    <select id="bitrateSelect">
+                                        <option value="128k">128 kbps</option>
+                                        <option value="192k">192 kbps</option>
+                                        <option value="256k">256 kbps</option>
+                                        <option value="320k">320 kbps</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="text-xs text-white/50 block mb-1">Sample Rate</label>
+                                    <select id="sampleRateSelect">
+                                        <option value="44100">44.1 kHz</option>
+                                        <option value="48000" selected>48 kHz</option>
+                                        <option value="88200">88.2 kHz</option>
+                                        <option value="96000">96 kHz</option>
+                                        <option value="192000">192 kHz</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="text-xs text-white/50 block mb-1">Channels</label>
+                                    <select id="channelsSelect">
+                                        <option value="1">Mono</option>
+                                        <option value="2" selected>Stereo</option>
+                                        <option value="6">5.1 Surround</option>
+                                        <option value="8">7.1 Surround</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="glass rounded-2xl p-5">
+                            <h3 class="text-sm font-semibold text-white/50 uppercase tracking-wider mb-3">
+                                <i class="fas fa-wand-magic-sparkles text-indigo-400 mr-1"></i> Processing
+                            </h3>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-3 cursor-pointer">
+                                    <input type="checkbox" id="normalize" class="w-4 h-4">
+                                    <span class="text-sm">Normalize Audio (LUFS)</span>
+                                </label>
+                                <label class="flex items-center gap-3 cursor-pointer">
+                                    <input type="checkbox" id="noiseReduction" class="w-4 h-4">
+                                    <span class="text-sm">Noise Reduction</span>
+                                </label>
+                                <label class="flex items-center gap-3 cursor-pointer">
+                                    <input type="checkbox" id="compressor" class="w-4 h-4">
+                                    <span class="text-sm">Compressor</span>
+                                </label>
+                                <label class="flex items-center gap-3 cursor-pointer">
+                                    <input type="checkbox" id="limiter" class="w-4 h-4">
+                                    <span class="text-sm">Limiter</span>
+                                </label>
+                                <label class="flex items-center gap-3 cursor-pointer">
+                                    <input type="checkbox" id="fadeIn" class="w-4 h-4">
+                                    <span class="text-sm">Fade In (0.5s)</span>
+                                </label>
+                                <label class="flex items-center gap-3 cursor-pointer">
+                                    <input type="checkbox" id="fadeOut" class="w-4 h-4">
+                                    <span class="text-sm">Fade Out (0.5s)</span>
+                                </label>
+                                <label class="flex items-center gap-3 cursor-pointer">
+                                    <input type="checkbox" id="highPass" class="w-4 h-4">
+                                    <span class="text-sm">High Pass Filter (80Hz)</span>
+                                </label>
+                                <label class="flex items-center gap-3 cursor-pointer">
+                                    <input type="checkbox" id="lowPass" class="w-4 h-4">
+                                    <span class="text-sm">Low Pass Filter (15kHz)</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <button id="convertBtn" class="btn-primary w-full justify-center text-lg py-4" onclick="startConversion()" disabled>
+                            <i class="fas fa-play-circle"></i> Convert All Files
+                        </button>
+                        
+                        <p class="text-xs text-white/40 text-center">
+                            Output files will keep their original names with new extension
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab: Presets -->
+            <div id="tab-presets" class="tab-content p-6 hidden">
+                <h2 class="text-2xl font-bold mb-6">Delivery Presets</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" id="presetsGrid"></div>
+            </div>
+            
+            <!-- Tab: History -->
+            <div id="tab-history" class="tab-content p-6 hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold">Conversion History</h2>
+                    <button class="btn-secondary" onclick="refreshHistory()">
+                        <i class="fas fa-refresh"></i> Refresh
+                    </button>
+                </div>
+                <div id="historyContent" class="space-y-3">
+                    <p class="text-white/50 text-center py-12">No conversions yet</p>
+                </div>
+            </div>
+            
+            <!-- Tab: About -->
+            <div id="tab-about" class="tab-content p-6 hidden">
+                <h2 class="text-2xl font-bold mb-6">About AudioForge Pro</h2>
+                <div class="glass rounded-2xl p-6 max-w-2xl space-y-4">
+                    <p class="text-white/70">Professional multi-file audio conversion suite powered by FFmpeg.</p>
+                    <div>
+                        <h3 class="font-semibold mb-2">FFmpeg Information</h3>
+                        <pre id="ffmpegInfo" class="p-3 bg-black/30 rounded-lg text-xs text-white/60 font-mono">Loading...</pre>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        // ============================================
+        // GLOBAL STATE
+        // ============================================
+        let uploadedFiles = [];
+        let currentJobId = null;
+        let downloadUrl = null;
+        let pollInterval = null;
+        let isBatch = false;
+        
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            initUploadZone();
+            loadFFmpegInfo();
+            loadPresets();
+            onFormatChange();
+            updateFileCount();
+        });
+        
+        function loadFFmpegInfo() {
+            fetch('/api/ffmpeg-info')
+                .then(r => r.json())
+                .then(info => {
+                    const el = document.getElementById('ffmpegInfo');
+                    if (el) el.textContent = JSON.stringify(info, null, 2);
+                    
+                    const status = document.getElementById('ffmpegStatus');
+                    if (status) {
+                        status.textContent = info.ffmpeg_found ? '✅ FFmpeg Ready' : '❌ FFmpeg Not Found';
+                        status.className = info.ffmpeg_found ? 'text-xs text-green-400 text-center' : 'text-xs text-red-400 text-center';
+                    }
+                })
+                .catch(() => {
+                    const el = document.getElementById('ffmpegInfo');
+                    if (el) el.textContent = 'Error loading FFmpeg info';
+                });
+        }
+        
+        // ============================================
+        // TAB SWITCHING
+        // ============================================
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.sidebar-link').forEach(el => el.classList.remove('active'));
+            
+            const tabEl = document.getElementById(`tab-${tabName}`);
+            if (tabEl) tabEl.classList.remove('hidden');
+            
+            const linkEl = document.querySelector(`[data-tab="${tabName}"]`);
+            if (linkEl) linkEl.classList.add('active');
+            
+            if (tabName === 'history') refreshHistory();
+            if (tabName === 'presets') loadPresets();
+            if (tabName === 'about') loadFFmpegInfo();
+        }
+        
+        // ============================================
+        // UPLOAD HANDLING
+        // ============================================
+        function initUploadZone() {
+            const uploadZone = document.getElementById('uploadZone');
+            const fileInput = document.getElementById('fileInput');
+            
+            uploadZone.addEventListener('click', (e) => {
+                if (e.target !== fileInput) fileInput.click();
+            });
+            
+            uploadZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadZone.classList.add('drag-over');
+            });
+            
+            uploadZone.addEventListener('dragleave', () => {
+                uploadZone.classList.remove('drag-over');
+            });
+            
+            uploadZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadZone.classList.remove('drag-over');
+                const files = Array.from(e.dataTransfer.files);
+                if (files.length > 0) processUpload(files);
+            });
+            
+            fileInput.addEventListener('change', (e) => {
+                const files = Array.from(e.target.files);
+                if (files.length > 0) processUpload(files);
+            });
+        }
+        
+        async function processUpload(files) {
+            const formData = new FormData();
+            files.forEach(file => formData.append('files', file));
+            
+            // Show uploading indicator
+            const uploadZone = document.getElementById('uploadZone');
+            const originalHTML = uploadZone.querySelector('div:not(.bg-orb)')?.innerHTML;
+            
+            try {
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.error || 'Upload failed');
+                }
+                
+                // Add files to our list
+                if (data.files) {
+                    data.files.forEach(file => {
+                        uploadedFiles.push(file);
+                    });
+                } else if (data.filename) {
+                    // Single file fallback
+                    uploadedFiles.push(data);
+                }
+                
+                // Update UI
+                updateFileList();
+                document.getElementById('fileListSection').classList.remove('hidden');
+                document.getElementById('convertBtn').disabled = false;
+                updateFileCount();
+                
+            } catch (error) {
+                alert('Upload failed: ' + error.message);
+            }
+        }
+        
+        function updateFileList() {
+            const container = document.getElementById('fileCards');
+            const countDisplay = document.getElementById('fileCountDisplay');
+            
+            if (countDisplay) countDisplay.textContent = uploadedFiles.length;
+            
+            if (!container) return;
+            
+            container.innerHTML = uploadedFiles.map((file, index) => {
+                const outputFormat = document.getElementById('outFormatSelect').value;
+                const originalName = file.original_name || 'audio';
+                const baseName = originalName.replace(/\.[^/.]+$/, '');
+                const outputName = `${baseName}.${outputFormat}`;
+                
+                return `
+                    <div class="file-card glass rounded-xl p-3 flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-music text-indigo-400 text-sm"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium truncate" title="${originalName}">${originalName}</p>
+                            <div class="flex gap-3 text-xs text-white/50">
+                                <span>${file.file_size_formatted || '--'}</span>
+                                <span>${file.duration_formatted || '--'}</span>
+                                <span>→ ${outputName}</span>
+                            </div>
+                        </div>
+                        <button onclick="removeFile(${index})" class="remove-btn text-red-400 hover:text-red-300 flex-shrink-0">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function removeFile(index) {
+            uploadedFiles.splice(index, 1);
+            updateFileList();
+            updateFileCount();
+            
+            if (uploadedFiles.length === 0) {
+                document.getElementById('fileListSection').classList.add('hidden');
+                document.getElementById('convertBtn').disabled = true;
+            }
+        }
+        
+        function clearAllFiles() {
+            if (confirm('Remove all uploaded files?')) {
+                uploadedFiles = [];
+                updateFileList();
+                updateFileCount();
+                document.getElementById('fileListSection').classList.add('hidden');
+                document.getElementById('convertBtn').disabled = true;
+            }
+        }
+        
+        function addMoreFiles() {
+            document.getElementById('fileInput').click();
+        }
+        
+        function updateFileCount() {
+            const el = document.getElementById('fileCount');
+            if (el) {
+                el.textContent = uploadedFiles.length > 0 
+                    ? `${uploadedFiles.length} file(s) uploaded` 
+                    : 'No files uploaded';
+            }
+        }
+        
+        function selectSaveFolder() {
+            // Browsers don't allow selecting actual folders for download
+            // We show a message about download location
+            alert('Files will be downloaded to your browser\'s default download folder.\n\nEach file keeps its original name with the new format extension.\n\nFor batch conversions, a ZIP file containing all converted files will be downloaded.');
+        }
+        
+        // ============================================
+        // FORMAT CHANGE HANDLER
+        // ============================================
+        function onFormatChange() {
+            const format = document.getElementById('outFormatSelect').value;
+            const bitDepthGroup = document.getElementById('bitDepthGroup');
+            const bitrateGroup = document.getElementById('bitrateGroup');
+            
+            if (format === 'wav' || format === 'aiff') {
+                bitDepthGroup.style.display = 'block';
+                bitrateGroup.style.display = 'none';
+            } else if (format === 'flac') {
+                bitDepthGroup.style.display = 'none';
+                bitrateGroup.style.display = 'none';
+            } else {
+                bitDepthGroup.style.display = 'none';
+                bitrateGroup.style.display = 'block';
+            }
+            
+            // Update output names in file list
+            updateFileList();
+        }
+        
+        // ============================================
+        // PRESETS
+        // ============================================
+        function applyPreset(presetName) {
+            if (presetName === 'custom') return;
+            
+            fetch('/api/presets')
+                .then(r => r.json())
+                .then(presets => {
+                    const preset = presets[presetName];
+                    if (!preset) return;
+                    
+                    document.getElementById('outFormatSelect').value = preset.format;
+                    document.getElementById('sampleRateSelect').value = preset.sample_rate;
+                    document.getElementById('channelsSelect').value = preset.channels;
+                    
+                    if (preset.bitrate) {
+                        document.getElementById('bitrateSelect').value = preset.bitrate;
+                    }
+                    if (preset.bit_depth) {
+                        document.getElementById('bitDepthSelect').value = preset.bit_depth;
+                    }
+                    
+                    onFormatChange();
+                });
+        }
+        
+        async function loadPresets() {
+            try {
+                const response = await fetch('/api/presets');
+                const presets = await response.json();
+                
+                const grid = document.getElementById('presetsGrid');
+                if (!grid) return;
+                
+                const icons = {
+                    netflix: 'fab fa-netflix text-red-500',
+                    spotify: 'fab fa-spotify text-green-500',
+                    apple_music: 'fab fa-apple text-white',
+                    youtube: 'fab fa-youtube text-red-600',
+                    podcast: 'fas fa-podcast text-purple-500',
+                    cinema: 'fas fa-film text-yellow-500',
+                    broadcast: 'fas fa-tower-broadcast text-blue-500',
+                    master: 'fas fa-database text-cyan-500',
+                };
+                
+                grid.innerHTML = Object.entries(presets).map(([key, preset]) => `
+                    <div class="glass glass-hover rounded-2xl p-5 cursor-pointer" onclick="applyPresetCard('${key}')">
+                        <i class="${icons[key] || 'fas fa-music'} text-3xl mb-3 block"></i>
+                        <h4 class="font-bold">${preset.label}</h4>
+                        <p class="text-xs text-white/50 mt-2">
+                            ${preset.format.toUpperCase()} • ${preset.sample_rate/1000}kHz • ${preset.channels}ch
+                            ${preset.bitrate ? ' • ' + preset.bitrate : ''}
+                            ${preset.bit_depth ? ' • ' + preset.bit_depth + '-bit' : ''}
+                        </p>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading presets:', error);
+            }
+        }
+        
+        function applyPresetCard(presetName) {
+            switchTab('converter');
+            setTimeout(() => {
+                document.getElementById('presetSelect').value = presetName;
+                applyPreset(presetName);
+            }, 100);
+        }
+        
+        // ============================================
+        // CONVERSION
+        // ============================================
+        async function startConversion() {
+            if (uploadedFiles.length === 0) {
+                alert('Please upload files first');
+                return;
+            }
+            
+            // Build params
+            const params = {
+                format: document.getElementById('outFormatSelect').value,
+                sample_rate: parseInt(document.getElementById('sampleRateSelect').value),
+                channels: parseInt(document.getElementById('channelsSelect').value),
+                normalize: document.getElementById('normalize').checked,
+                noise_reduction: document.getElementById('noiseReduction').checked,
+                compressor: document.getElementById('compressor').checked,
+                limiter: document.getElementById('limiter').checked,
+                fade_in: document.getElementById('fadeIn').checked,
+                fade_out: document.getElementById('fadeOut').checked,
+                high_pass: document.getElementById('highPass').checked,
+                low_pass: document.getElementById('lowPass').checked,
+            };
+            
+            const format = params.format;
+            if (format === 'wav' || format === 'aiff') {
+                params.bit_depth = document.getElementById('bitDepthSelect').value;
+            } else if (format !== 'flac') {
+                params.bitrate = document.getElementById('bitrateSelect').value;
+            }
+            
+            // Determine if batch or single
+            if (uploadedFiles.length > 1) {
+                params.files = uploadedFiles.map(f => ({
+                    filename: f.filename,
+                    original_name: f.original_name
+                }));
+                isBatch = true;
+            } else {
+                params.filename = uploadedFiles[0].filename;
+                params.original_name = uploadedFiles[0].original_name;
+                isBatch = false;
+            }
+            
+            try {
+                const response = await fetch('/api/convert', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(params)
+                });
+                
+                const result = await response.json();
+                
+                if (!result.success) {
+                    throw new Error(result.error || 'Conversion failed to start');
+                }
+                
+                // Store job ID and download URL
+                currentJobId = result.job_id || result.batch_id;
+                downloadUrl = result.download_url;
+                
+                console.log('Conversion started - ID:', currentJobId);
+                console.log('Download URL:', downloadUrl);
+                
+                // Show progress section
+                document.getElementById('progressSection').classList.remove('hidden');
+                document.getElementById('completeSection').classList.add('hidden');
+                document.getElementById('convertBtn').disabled = true;
+                
+                if (isBatch) {
+                    document.getElementById('progressFileInfo').textContent = 
+                        `File 1 of ${result.total_files}`;
+                }
+                
+                // Start polling
+                startProgressPolling();
+                
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+        
+        function startProgressPolling() {
+            if (pollInterval) clearInterval(pollInterval);
+            
+            pollInterval = setInterval(async () => {
+                if (!currentJobId) {
+                    clearInterval(pollInterval);
+                    return;
+                }
+                
+                try {
+                    const response = await fetch(`/api/progress/${currentJobId}`);
+                    const data = await response.json();
+                    
+                    const progress = data.progress || 0;
+                    document.getElementById('progressBar').style.width = progress + '%';
+                    document.getElementById('progressText').textContent = progress + '%';
+                    document.getElementById('progressStatus').textContent = data.status || 'Processing...';
+                    
+                    if (data.type === 'batch') {
+                        document.getElementById('progressFileInfo').textContent = 
+                            `File ${data.current_file || 1} of ${data.total_files || 0} - ${data.current_file_name || ''}`;
+                    }
+                    
+                    if (data.status === 'completed') {
+                        clearInterval(pollInterval);
+                        pollInterval = null;
+                        
+                        downloadUrl = data.download_url || '';
+                        
+                        console.log('Conversion complete - Download URL:', downloadUrl);
+                        
+                        showCompletion(data);
+                    }
+                    
+                    if (data.status === 'error') {
+                        clearInterval(pollInterval);
+                        pollInterval = null;
+                        alert('Conversion failed: ' + (data.error || 'Unknown error'));
+                        document.getElementById('convertBtn').disabled = false;
+                    }
+                    
+                } catch (error) {
+                    console.error('Polling error:', error);
+                }
+            }, 500);
+        }
+        
+        function showCompletion(data) {
+            document.getElementById('progressSection').classList.add('hidden');
+            document.getElementById('completeSection').classList.remove('hidden');
+            
+            const messageEl = document.getElementById('completeMessage');
+            
+            if (data.type === 'batch') {
+                const completed = data.completed_files || 0;
+                const total = data.total_files || 0;
+                messageEl.textContent = `${completed} of ${total} files converted successfully`;
+                
+                // Show failed files if any
+                if (data.failed_files && data.failed_files.length > 0) {
+                    const failedSection = document.getElementById('failedFilesSection');
+                    const failedList = document.getElementById('failedFilesList');
+                    failedSection.classList.remove('hidden');
+                    failedList.innerHTML = data.failed_files.map(f => 
+                        `<div>⚠️ ${f.original_name}: ${f.error}</div>`
+                    ).join('');
+                }
+            } else {
+                messageEl.textContent = `File size: ${data.output_size || '--'}`;
+            }
+        }
+        
+        function downloadFiles() {
+            if (!downloadUrl) {
+                alert('Download URL not available. Please try again.');
+                return;
+            }
+            console.log('Downloading from:', downloadUrl);
+            window.location.href = downloadUrl;
+        }
+        
+        // ============================================
+        // HISTORY
+        // ============================================
+        async function refreshHistory() {
+            try {
+                const response = await fetch('/api/history');
+                const history = await response.json();
+                
+                const container = document.getElementById('historyContent');
+                if (!container) return;
+                
+                if (!history || history.length === 0) {
+                    container.innerHTML = '<p class="text-white/50 text-center py-12">No conversions yet</p>';
+                    return;
+                }
+                
+                container.innerHTML = history.map(item => `
+                    <div class="glass glass-hover rounded-xl p-4 flex items-center justify-between">
+                        <div>
+                            <h4 class="font-semibold">
+                                ${item.type === 'batch' ? '📦 Batch: ' + item.input_files + ' files' : '🎵 ' + item.input_file}
+                            </h4>
+                            <p class="text-xs text-white/50">
+                                ${item.output_format || '--'} • 
+                                ${formatFileSize(item.total_size || item.size || 0)} • 
+                                ${new Date(item.timestamp).toLocaleString()}
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-green-400 text-sm">
+                                <i class="fas fa-check-circle"></i> Complete
+                            </span>
+                            ${item.download_url ? `
+                                <button class="btn-secondary text-xs py-1 px-3" onclick="window.location.href='${item.download_url}'">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('History error:', error);
+            }
+        }
+        
+        function formatFileSize(bytes) {
+            if (!bytes) return '0 B';
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(1024));
+            return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
+        }
+    </script>
+</body>
+</html>
